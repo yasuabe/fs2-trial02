@@ -27,5 +27,6 @@ libraryDependencies ++= Seq(
   "org.http4s" %% "http4s-blaze-client" % "0.21.0-M5",
   "org.http4s" %% "jawn-fs2" % "0.15.0",
   "io.circe" %% "circe-core" % "0.12.1",
-  "io.circe" %% "circe-jawn" % "0.12.1"
+  "io.circe" %% "circe-jawn" % "0.12.1",
+  "com.ovoenergy" %% "fs2-kafka" % "0.20.1"
 )
