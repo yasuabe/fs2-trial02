@@ -6,8 +6,9 @@ import fs2.{Stream, io, text}
 
 trait StreamDemoApp extends IOApp {
   def run(args: List[String]): IO[ExitCode] =
-    Stream.resource(Blocker[IO]).flatMap { implicit bl =>
+    Stream.resource(Blocker[IO]).flatMap { implicit bl: Blocker =>
       stream[IO]
+        .take(5)
         .map(s => s"$s\n")
         .through(text.utf8Encode)
         .through(io.stdout[IO](bl))
