@@ -39,7 +39,6 @@ object FromHttp4sClient extends StreamDemoApp {
       signedReq <- Stream.eval(sign(req))
       res       <- client.stream(signedReq)
                      .flatMap(_.body.chunks.parseJsonStream)
-                     .take(5)
     } yield res.spaces2
   }
 }
