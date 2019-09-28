@@ -14,9 +14,9 @@ object FromDoobie extends StreamDemoApp {
       bl
     )
     sql"select name from country where population > 50000000 order by population desc"
-      .query[String]
-      .stream
-      .transact(xa) // Stream[ConnectionIO, String] is converted into Stream[F, String] here.
+      .query[String] // Query0[String]
+      .stream        // Stream[ConnectionIO, String]
+      .transact(xa)  // Stream[F, String]
   }
 }
 
