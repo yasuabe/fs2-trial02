@@ -10,6 +10,10 @@ object FromFile extends StreamDemoApp {
   def file[F[_]: Sync]: Resource[F, Source] =
     Resource.fromAutoCloseable(Sync[F].delay(Source.fromFile("README.md")))
 
-  def stream[F[_] : ConcurrentEffect : Timer : ContextShift](implicit bl: Blocker): Stream[F, String] =
+  def stream[F[_] : ConcurrentEffect : Timer : ContextShift](implicit bl: Blocker): Stream[F, String] = {
+    val file: Resource[F, Source] =
+      Resource.fromAutoCloseable(Sync[F].delay(Source.fromFile("README.md")))
+
     Stream.resource(file) >>= (s => Stream.fromIterator(s.getLines))
+  }
 }
