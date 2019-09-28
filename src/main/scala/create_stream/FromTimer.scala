@@ -1,7 +1,6 @@
 package create_stream
 
-import cats.Functor
-import cats.effect.{Blocker, Concurrent, ConcurrentEffect, ContextShift, Sync, Timer}
+import cats.effect.{Blocker, ConcurrentEffect, ContextShift, Timer}
 import cats.syntax.functor._
 import fs2.Stream
 
@@ -21,8 +20,4 @@ object FromTimer extends StreamDemoApp {
     Stream.fixedDelay[F](3 seconds) zipRight task.repeat
   }
 }
-// def fixedRate[F[_]] (d: FiniteDuration)(implicit timer: Timer[F]): Stream[F, Unit]
-// def fixedDelay[F[_]](d: FiniteDuration)(implicit timer: Timer[F]): Stream[F, Unit]
-// def awakeDelay[F[x] >: Pure[x]](d: FiniteDuration)(implicit timer: Timer[F], F: Functor[F]): Stream[F, FiniteDuration]
-// def awakeEvery[F[x] >: Pure[x]](d: FiniteDuration)(implicit timer: Timer[F], F: Functor[F]): Stream[F, FiniteDuration]
 
