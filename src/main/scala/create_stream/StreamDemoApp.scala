@@ -1,21 +1,15 @@
 package create_stream
 
-import cats.effect._
-import cats.syntax.functor._
-import fs2.{Stream, io, text}
+import cats.effect.{ IO, IOApp, Async, Clock }
+import cats.syntax.functor.*
+import fs2.{ Stream, io, text }
 
-trait StreamDemoApp extends IOApp {
-  def run(args: List[String]): IO[ExitCode] =
-    Stream.resource(Blocker[IO]).flatMap { implicit bl: Blocker =>
-      stream[IO]
-        .take(5)
-        .map(s => s"$s\n")
-        .through(text.utf8Encode)
-        .through(io.stdout[IO](bl))
-    }
+trait StreamDemoApp extends IOApp.Simple:
+  def run: IO[Unit] = stream[IO]
+    .take(5)
+    .map(s => s"$s\n")
+    .through(text.utf8.encode)
+    .through(io.stdout)
     .compile.drain
-    .as(ExitCode.Success)
 
-  def stream[F[_] : ConcurrentEffect : Timer : ContextShift]
-    (implicit bl: Blocker): Stream[F, String]
-}
+  def stream[F[_]: Async] : Stream[F, String]

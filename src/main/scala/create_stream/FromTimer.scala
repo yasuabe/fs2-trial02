@@ -1,15 +1,15 @@
 package create_stream
 
-import cats.effect.{Blocker, ConcurrentEffect, ContextShift, Timer}
-import cats.syntax.functor._
+import scala.concurrent.duration.*
+import cats.Monad
+import cats.syntax.functor.*
+import cats.effect.{ Sync, Async, Clock }
 import fs2.Stream
 
-import scala.concurrent.duration._
-
-object FromTimer extends StreamDemoApp {
-  def stream[F[_] : ConcurrentEffect : Timer : ContextShift](implicit bl: Blocker): Stream[F, String] = {
-    def currentSec: F[String] =
-      Timer[F].clock.realTime(SECONDS).map(n => (n % 60).toString)
+object FromTimer extends StreamDemoApp:
+  def stream[F[_]: Async]: Stream[F, String] =
+    val currentSec: F[String] =
+      Clock[F].realTime.map(n => (n.toSeconds % 60).toString)
 
     val task: Stream[F, String] = for {
       s <- Stream.eval(currentSec)
@@ -18,6 +18,3 @@ object FromTimer extends StreamDemoApp {
     } yield s"$s ---> $e"
 
     Stream.fixedDelay[F](3 seconds) zipRight task.repeat
-  }
-}
-

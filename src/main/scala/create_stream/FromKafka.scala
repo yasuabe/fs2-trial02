@@ -1,20 +1,17 @@
 package create_stream
 
-import cats.effect.{Blocker, ConcurrentEffect, ContextShift, Timer}
+import cats.effect.Async
 import fs2.Stream
-import fs2.kafka._
+import fs2.kafka.*
 
-object FromKafka extends StreamDemoApp {
-  def stream[F[_] : ConcurrentEffect : Timer : ContextShift](implicit bl: Blocker): Stream[F, String] = {
+object FromKafka extends StreamDemoApp:
+  def stream[F[_]: Async]: Stream[F, String] =
     val consumerSettings = ConsumerSettings[F, String, String]
-        .withAutoOffsetReset(AutoOffsetReset.Earliest)
-        .withBootstrapServers("localhost:9092")
-        .withGroupId("group")
+      .withAutoOffsetReset(AutoOffsetReset.Earliest)
+      .withBootstrapServers("localhost:9092")
+      .withGroupId("group")
 
-    consumerStream[F]
-        .using(consumerSettings)
-        .evalTap(_.subscribeTo("topic"))
-        .flatMap(_.stream)
-        .map(c => s"${c.record.key}->${c.record.value}")
-  }
-}
+    KafkaConsumer.stream(consumerSettings)
+      .evalTap(_.subscribeTo("topic"))
+      .flatMap(_.stream)
+      .map(c => s"${c.record.key}->${c.record.value}")
