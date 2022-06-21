@@ -21,22 +21,22 @@ object FromHttp4sClient extends StreamDemoApp:
   def stream[F[_]: Async]: Stream[F, String] =
     val req = Request[F](Method.GET, uri"https://stream.twitter.com/1.1/statuses/sample.json")
 
-    def env(key: String)(using F: Async[F]): F[String] = F.delay(
+    val env = (F: Async[F]) ?=> (key: String) => F.delay(
       sys.env.get(key).toRight(RuntimeException(s"no env value for key: $key"))
     ) >>= F.fromEither
 
-    def sign(req: Request[F]): F[Request[F]] = for {
-        consumerKey    <- env("consumerKey")
-        consumerSecret <- env("consumerSecret")
-        accessToken    <- env("accessToken")
-        accessSecret   <- env("accessSecret")
-        signedReq      <- oauth1.signRequest(
-          req                = req,
-          consumer           = Consumer(consumerKey, consumerSecret),
-          token              = Token(accessToken, accessSecret).some,
-          realm              = None,
-          timestampGenerator = Timestamp.now,
-          nonceGenerator     = Nonce.now)
+    val sign: Request[F] => F[Request[F]] = req => for {
+      consumerKey    <- env("consumerKey")
+      consumerSecret <- env("consumerSecret")
+      accessToken    <- env("accessToken")
+      accessSecret   <- env("accessSecret")
+      signedReq      <- oauth1.signRequest(
+        req                = req,
+        consumer           = Consumer(consumerKey, consumerSecret),
+        token              = Token(accessToken, accessSecret).some,
+        realm              = None,
+        timestampGenerator = Timestamp.now,
+        nonceGenerator     = Nonce.now)
       } yield signedReq
 
     for {
